@@ -6,6 +6,10 @@
     <title>Chauhan Steel Furniture</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Babel Standalone for in-browser JSX/TSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
       body { font-family: 'Inter', sans-serif; }
       /* Custom scrollbar for cleaner look */
@@ -20,20 +24,38 @@
         .no-print { display: none !important; }
       }
     </style>
-  <script type="importmap">
+    
+    <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.86.0"
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "recharts": "https://esm.sh/recharts@2.12.0?external=react,react-dom",
+    "react": "https://esm.sh/react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-</head>
+    
+    <!-- Polyfill for process.env to allow code to run without a Node build step -->
+    <script>
+      window.process = {
+        env: {
+          NODE_ENV: 'development',
+          // If you are using a Netlify plugin to inject env vars, they will be merged here
+          // otherwise, the app will fall back to hardcoded values in supabaseClient.ts
+        }
+      };
+    </script>
+  </head>
   <body class="bg-slate-50 text-slate-900 antialiased">
     <div id="root"></div>
+    
+    <!-- Load the entry point with Babel type -->
+    <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
   </body>
 </html>
