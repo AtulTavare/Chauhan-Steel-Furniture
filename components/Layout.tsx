@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { LayoutDashboard, ShoppingCart, Truck, Receipt, BarChart3, Users, Package, Menu, X, LogOut, History } from 'lucide-react';
 import { ViewState } from '../types';
 
+// Hardcoded version to verify deployment
+const APP_VERSION = "v1.0.2";
+
 interface LayoutProps {
   children: React.ReactNode;
   activeView: ViewState;
@@ -96,7 +99,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
            </button>
            
            <div className="bg-slate-100 rounded-lg p-3">
-             <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Status</p>
+             <div className="flex justify-between items-center mb-1">
+               <p className="text-xs font-semibold text-slate-500 uppercase">Status</p>
+               <span className="text-[10px] font-mono text-slate-400">{APP_VERSION}</span>
+             </div>
              <div className="flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                <span className="text-sm text-slate-700">System Online</span>
@@ -167,9 +173,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onChangeVi
              <LogOut size={20} />
              <span className="font-medium">Logout</span>
            </button>
-           <div className="flex items-center gap-2 text-sm text-slate-500 px-2">
-             <div className="w-2 h-2 rounded-full bg-green-500"></div>
-             <span>System Online</span>
+           <div className="flex items-center justify-between text-sm text-slate-500 px-2">
+             <div className="flex items-center gap-2">
+               <div className="w-2 h-2 rounded-full bg-green-500"></div>
+               <span>Online</span>
+             </div>
+             <span className="text-[10px] font-mono">{APP_VERSION}</span>
            </div>
         </div>
       </div>

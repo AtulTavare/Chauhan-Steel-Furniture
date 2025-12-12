@@ -19,7 +19,7 @@ interface TempVariation {
   color: string;
 }
 
-const STORAGE_KEY = 'product_form_v3_draft';
+const STORAGE_KEY = 'product_form_v4_draft';
 
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({ 
   isOpen, 
@@ -146,6 +146,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // If user presses Enter in Step 1, move to Step 2 instead of submitting
+    if (step === 1) {
+      handleNextStep();
+      return;
+    }
+
     const newProductId = Date.now().toString();
     const newProduct: Product = {
       id: newProductId,
@@ -253,11 +259,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-xl font-bold text-slate-800">
-                {step === 1 ? 'Step 1: Product Details' : 'Step 2: Inventory & Pricing'}
+                {step === 1 ? 'Add Product: Basic Info' : 'Add Product: Inventory'}
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                {step === 1 ? 'Basic information and categorization' : 'Set prices, stock levels, and variations'}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${step === 1 ? 'bg-blue-100 text-blue-700' : 'text-slate-400'}`}>Step 1</span>
+                <ChevronDown className="-rotate-90 text-slate-300" size={12} />
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${step === 2 ? 'bg-blue-100 text-blue-700' : 'text-slate-400'}`}>Step 2</span>
+              </div>
             </div>
             <button onClick={handleCloseAndClear} className="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-200 rounded-full transition-colors">
               <X size={24} />
@@ -265,9 +273,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
           
           {/* Progress Bar */}
-          <div className="flex items-center gap-2">
-            <div className={`h-2 rounded-full flex-1 transition-colors ${step >= 1 ? 'bg-blue-600' : 'bg-slate-200'}`}></div>
-            <div className={`h-2 rounded-full flex-1 transition-colors ${step >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`}></div>
+          <div className="flex items-center gap-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className={`h-full transition-all duration-300 ease-out ${step >= 1 ? 'w-1/2 bg-blue-600' : 'w-0'}`}></div>
+            <div className={`h-full transition-all duration-300 ease-out ${step >= 2 ? 'w-1/2 bg-blue-600' : 'w-0'}`}></div>
           </div>
         </div>
 
