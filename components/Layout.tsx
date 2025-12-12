@@ -3,7 +3,7 @@ import { LayoutDashboard, ShoppingCart, Truck, Receipt, BarChart3, Users, Packag
 import { ViewState } from '../types';
 
 // Hardcoded version to verify deployment
-const APP_VERSION = "v1.0.2";
+const APP_VERSION = "v1.0.3";
 
 interface LayoutProps {
   children: React.ReactNode;

@@ -573,7 +573,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                     value={v.stock}
                                     onChange={e => {
                                        const updated = [...variations];
-                                       updated[idx] = { ...updated[idx], stock: e.target.value };
+                                       updated[idx] = { ...updated[idx], stock: e.target.value === '' ? '' : Number(e.target.value) };
                                        setVariations(updated);
                                     }}
                                     className="w-full px-3 py-2 border border-slate-300 rounded focus:border-blue-500 outline-none"
@@ -587,7 +587,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                     value={v.purchasePrice}
                                     onChange={e => {
                                        const updated = [...variations];
-                                       updated[idx] = { ...updated[idx], purchasePrice: e.target.value };
+                                       updated[idx] = { ...updated[idx], purchasePrice: e.target.value === '' ? '' : Number(e.target.value) };
                                        setVariations(updated);
                                     }}
                                     className="w-full px-3 py-2 border border-slate-300 rounded focus:border-blue-500 outline-none"
@@ -601,7 +601,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                     value={v.sellingPrice}
                                     onChange={e => {
                                        const updated = [...variations];
-                                       updated[idx] = { ...updated[idx], sellingPrice: e.target.value };
+                                       updated[idx] = { ...updated[idx], sellingPrice: e.target.value === '' ? '' : Number(e.target.value) };
                                        setVariations(updated);
                                     }}
                                     className="w-full px-3 py-2 border border-slate-300 rounded focus:border-blue-500 outline-none font-semibold"
