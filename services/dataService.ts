@@ -129,7 +129,13 @@ const mapPurchaseFromDB = (p: any): Purchase => ({
 
 export const dataService = {
   // --- FETCH ALL DATA ---
-  fetchAllData: async (retryCount = 0) => {
+  fetchAllData: async (retryCount = 0): Promise<{
+    products: Product[];
+    variations: Variation[];
+    bills: Bill[];
+    purchases: Purchase[];
+    categories: string[];
+  }> => {
     const [
       { data: products, error: pError },
       { data: variations, error: vError },
