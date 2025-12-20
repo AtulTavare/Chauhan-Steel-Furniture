@@ -1,3 +1,4 @@
+
 import { supabase } from '../supabaseClient';
 import { Product, Variation, Bill, Purchase } from '../types';
 
@@ -40,16 +41,10 @@ const DEMO_VARIATIONS: Variation[] = [
   { id: 'v18', productId: 'p10', name: '6x6 ft Heavy Duty', stock: 2, purchasePrice: 7000, sellingPrice: 12000, color: '#C0C0C0' },
 ];
 
-// Helper to seed data if empty
 const seedDemoData = async () => {
-  console.log("Seeding Demo Data...");
-  
-  // 1. Seed Categories
   const categoryInserts = DEMO_CATEGORIES.map(name => ({ name }));
-  const { error: cError } = await supabase.from('categories').insert(categoryInserts);
-  if (cError) console.warn("Seeding categories msg:", cError.message);
+  await supabase.from('categories').insert(categoryInserts);
 
-  // 2. Seed Products (Map to Snake Case)
   const productInserts = DEMO_PRODUCTS.map(p => ({
     id: p.id,
     name: p.name,
@@ -58,10 +53,8 @@ const seedDemoData = async () => {
     base_purchase_price: p.basePurchasePrice,
     base_selling_price: p.baseSellingPrice
   }));
-  const { error: pError } = await supabase.from('products').insert(productInserts);
-  if (pError) console.warn("Seeding products msg:", pError.message);
+  await supabase.from('products').insert(productInserts);
 
-  // 3. Seed Variations (Map to Snake Case)
   const variationInserts = DEMO_VARIATIONS.map(v => ({
     id: v.id,
     product_id: v.productId,
@@ -72,11 +65,8 @@ const seedDemoData = async () => {
     image: v.image,
     color: v.color
   }));
-  const { error: vError } = await supabase.from('variations').insert(variationInserts);
-  if (vError) console.warn("Seeding variations msg:", vError.message);
+  await supabase.from('variations').insert(variationInserts);
 };
-
-// --- HELPERS FOR MAPPING (CamelCase <-> Snake_Case) ---
 
 const mapProductFromDB = (p: any): Product => ({
   id: p.id,
@@ -101,9 +91,9 @@ const mapVariationFromDB = (v: any): Variation => ({
 const mapBillFromDB = (b: any): Bill => ({
   id: b.id,
   customerName: b.customer_name,
-  contactNo: b.contact_no, // Mapped
+  contactNo: b.contact_no,
   date: b.date,
-  items: b.items, // JSONB comes back as object
+  items: b.items,
   totalAmount: b.total_amount,
   discount: b.discount,
   finalAmount: b.final_amount,
@@ -125,10 +115,7 @@ const mapPurchaseFromDB = (p: any): Purchase => ({
   type: 'PURCHASE'
 });
 
-// --- SERVICE ---
-
 export const dataService = {
-  // --- FETCH ALL DATA ---
   fetchAllData: async (retryCount = 0): Promise<{
     products: Product[];
     variations: Variation[];
@@ -155,18 +142,12 @@ export const dataService = {
     if (bError) throw new Error(`Bills Load Error: ${bError.message}`);
     if (purError) throw new Error(`Purchases Load Error: ${purError.message}`);
 
-    // --- SEEDING CHECK ---
-    // If products are empty, we try to seed data.
     if ((!products || products.length === 0) && (!categoriesData || categoriesData?.length === 0)) {
-      if (retryCount > 0) {
-         console.warn("Seeding attempted but data is still empty. Returning empty sets.");
-         return { products: [], variations: [], bills: [], purchases: [], categories: [] };
-      }
+      if (retryCount > 0) return { products: [], variations: [], bills: [], purchases: [], categories: [] };
       try {
         await seedDemoData();
-        return dataService.fetchAllData(1); // Retry fetch
+        return dataService.fetchAllData(1);
       } catch (e: any) {
-        console.error("Seeding failed", e);
         return { products: [], variations: [], bills: [], purchases: [], categories: DEMO_CATEGORIES };
       }
     }
@@ -180,10 +161,19 @@ export const dataService = {
     };
   },
 
-  // --- ACTIONS ---
+  updateProduct: async (p: Product) => {
+    const dbProduct = {
+      name: p.name,
+      category: p.category,
+      image: p.image,
+      base_purchase_price: p.basePurchasePrice,
+      base_selling_price: p.baseSellingPrice
+    };
+    const { error } = await supabase.from('products').update(dbProduct).eq('id', p.id);
+    if (error) throw new Error(error.message);
+  },
 
   addProduct: async (product: Product, newVariations: Variation[]) => {
-    // Map Product to DB
     const dbProduct = {
       id: product.id,
       name: product.name,
@@ -192,11 +182,9 @@ export const dataService = {
       base_purchase_price: product.basePurchasePrice,
       base_selling_price: product.baseSellingPrice
     };
-
     const { error: pError } = await supabase.from('products').insert(dbProduct);
     if (pError) throw new Error(pError.message);
 
-    // Map Variations to DB
     if (newVariations.length > 0) {
       const dbVariations = newVariations.map(v => ({
         id: v.id,
@@ -208,7 +196,6 @@ export const dataService = {
         image: v.image,
         color: v.color
       }));
-
       const { error: vError } = await supabase.from('variations').insert(dbVariations);
       if (vError) throw new Error(vError.message);
     }
@@ -243,13 +230,12 @@ export const dataService = {
   },
 
   createBill: async (bill: Bill, updatedVariations: Variation[]) => {
-    // 1. Map Bill to DB (Snake Case)
     const dbBill = {
       id: bill.id,
       customer_name: bill.customerName,
-      contact_no: bill.contactNo, // Mapped
+      contact_no: bill.contactNo,
       date: bill.date,
-      items: bill.items, // JSONB
+      items: bill.items,
       total_amount: bill.totalAmount,
       discount: bill.discount,
       final_amount: bill.finalAmount,
@@ -258,20 +244,15 @@ export const dataService = {
       payment_mode: bill.paymentMode,
       type: 'SALE'
     };
-
     const { error: bError } = await supabase.from('bills').insert(dbBill);
     if (bError) throw new Error("DB Error: " + bError.message);
 
-    // 2. Update Stock
     for (const v of updatedVariations) {
-      await supabase.from('variations')
-        .update({ stock: v.stock })
-        .eq('id', v.id);
+      await supabase.from('variations').update({ stock: v.stock }).eq('id', v.id);
     }
   },
 
   createPurchase: async (purchase: Purchase, updatedVariations: Variation[]) => {
-    // 1. Map Purchase to DB
     const dbPurchase = {
       id: purchase.id,
       supplier_name: purchase.supplierName,
@@ -283,15 +264,11 @@ export const dataService = {
       payment_mode: purchase.paymentMode,
       type: 'PURCHASE'
     };
-
     const { error: pError } = await supabase.from('purchases').insert(dbPurchase);
     if (pError) throw new Error("DB Error: " + pError.message);
 
-    // 2. Update Stock & Purchase Price
     for (const v of updatedVariations) {
-      await supabase.from('variations')
-        .update({ stock: v.stock, purchase_price: v.purchasePrice })
-        .eq('id', v.id);
+      await supabase.from('variations').update({ stock: v.stock, purchase_price: v.purchasePrice }).eq('id', v.id);
     }
   },
 

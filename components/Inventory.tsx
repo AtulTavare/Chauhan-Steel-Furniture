@@ -1,5 +1,6 @@
+
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, Plus, ChevronRight, Package, AlertTriangle, Settings, Tag, Image as ImageIcon } from 'lucide-react';
+import { Search, Plus, ChevronRight, ImageIcon, Boxes, Tag } from 'lucide-react';
 import { Product, Variation } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 import { CategoryManager } from './CategoryManager';
@@ -13,30 +14,70 @@ interface InventoryProps {
   onUpdateCategories: (categories: string[]) => void;
 }
 
-export const Inventory: React.FC<InventoryProps> = ({ 
-  products, 
-  variations, 
-  categories,
-  onSelectProduct, 
-  onAddProduct,
-  onUpdateCategories
-}) => {
+const ProductCard: React.FC<{ product: Product, stats: any, onSelect: () => void }> = ({ product, stats, onSelect }) => {
+  const isOutOfStock = stats.totalStock === 0;
+  const isLowStock = stats.totalStock < 10 && !isOutOfStock;
+
+  return (
+    <div 
+      onClick={onSelect}
+      className="group bg-white rounded-xl sm:rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 cursor-pointer flex flex-col relative"
+    >
+      <div className="aspect-square sm:aspect-[4/3] bg-slate-50 relative overflow-hidden">
+        {product.image ? (
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="text-slate-300" size={32} /></div>
+        )}
+        <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3">
+          <span className="bg-white/90 backdrop-blur px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm border border-white/50">{product.category}</span>
+        </div>
+        <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3">
+          <span className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm ${
+            isOutOfStock ? 'bg-red-500 text-white' : isLowStock ? 'bg-orange-500 text-white' : 'bg-emerald-500 text-white'
+          }`}>
+            {isOutOfStock ? 'Out' : isLowStock ? 'Low' : 'In Stock'}
+          </span>
+        </div>
+      </div>
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col">
+        <h3 className="text-sm sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{product.name}</h3>
+        <div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-4">
+          <div className="flex flex-col">
+            <span className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">Stock</span>
+            <span className={`text-xs sm:text-base font-black ${isOutOfStock ? 'text-red-500' : 'text-slate-800'}`}>{stats.totalStock}</span>
+          </div>
+          <div className="h-5 sm:h-8 w-px bg-slate-100"></div>
+          <div className="flex flex-col">
+            <span className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">Variants</span>
+            <span className="text-xs sm:text-base font-black text-slate-800">{stats.variationCount}</span>
+          </div>
+        </div>
+        <div className="mt-auto pt-2.5 sm:pt-4 border-t border-slate-50 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">Starting ₹</span>
+            <span className="text-[10px] sm:text-sm font-black text-slate-900">₹{stats.minPrice}</span>
+          </div>
+          <div className="bg-slate-50 p-1 sm:p-2 rounded-lg sm:rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all"><ChevronRight size={14} className="sm:w-[18px] sm:h-[18px]" /></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const Inventory: React.FC<InventoryProps> = ({ products, variations, categories, onSelectProduct, onAddProduct, onUpdateCategories }) => {
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCatManagerOpen, setIsCatManagerOpen] = useState(false);
 
-  // Derive inventory stats per product
   const productStats = useMemo(() => {
-    const stats = new Map<string, { totalStock: number, minPrice: number, maxPrice: number, variationCount: number }>();
-    
+    const stats = new Map();
     products.forEach(p => {
       const pVars = variations.filter(v => v.productId === p.id);
-      const totalStock = pVars.reduce((sum, v) => sum + v.stock, 0);
       const prices = pVars.map(v => v.sellingPrice);
-      
       stats.set(p.id, {
-        totalStock,
+        totalStock: pVars.reduce((sum, v) => sum + v.stock, 0),
         minPrice: prices.length ? Math.min(...prices) : 0,
         maxPrice: prices.length ? Math.max(...prices) : 0,
         variationCount: pVars.length
@@ -46,61 +87,46 @@ export const Inventory: React.FC<InventoryProps> = ({
   }, [products, variations]);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                          p.category.toLowerCase().includes(search.toLowerCase());
-    const matchesCat = filterCat === 'All' || p.category === filterCat;
-    return matchesSearch && matchesCat;
+    const mSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase());
+    const mCat = filterCat === 'All' || p.category === filterCat;
+    return mSearch && mCat;
   });
 
-  const filterCategories = ['All', ...categories];
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Inventory</h2>
-          <p className="text-slate-500">Manage your furniture stock and prices</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900">Inventory Dashboard</h2>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">Manage your steel furniture collection</p>
         </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setIsCatManagerOpen(true)}
-            className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-50 transition-colors font-medium"
-          >
-            <Tag size={18} />
-            Manage Categories
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button onClick={() => setIsCatManagerOpen(true)} className="flex-1 sm:flex-none bg-white border border-slate-200 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm text-slate-700 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+            <Tag size={16} className="text-slate-400" /> Categories
           </button>
-          <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm active:scale-95 font-medium"
-          >
-            <Plus size={18} />
-            Add New Product
+          <button onClick={() => setIsAddModalOpen(true)} className="flex-1 sm:flex-none bg-blue-600 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm text-white flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+            <Plus size={18} /> Add Product
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 sticky top-0 z-10">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+      <div className="sticky top-0 z-30 space-y-3 bg-slate-50/80 backdrop-blur pb-2 sm:pb-4 pt-1">
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
           <input
             type="text"
             placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-11 pr-4 py-2.5 sm:py-3.5 bg-white border border-slate-200 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all text-sm sm:text-base font-medium text-slate-800"
           />
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-          {filterCategories.map(cat => (
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar mask-linear-right">
+          {['All', ...categories].map(cat => (
             <button
               key={cat}
               onClick={() => setFilterCat(cat)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                filterCat === cat 
-                  ? 'bg-slate-800 text-white' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest whitespace-nowrap border-2 transition-all ${
+                filterCat === cat ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-105' : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
               }`}
             >
               {cat}
@@ -109,108 +135,22 @@ export const Inventory: React.FC<InventoryProps> = ({
         </div>
       </div>
 
-      {/* List View (Table) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-semibold border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4 w-24 text-center">Image</th>
-                <th className="px-6 py-4">Product Name</th>
-                <th className="px-6 py-4 hidden sm:table-cell">Category</th>
-                <th className="px-6 py-4 text-center">Variations</th>
-                <th className="px-6 py-4 text-right">Price Range</th>
-                <th className="px-6 py-4 text-right">Total Stock</th>
-                <th className="px-6 py-4 w-10"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredProducts.map(product => {
-                const stat = productStats.get(product.id) || { totalStock: 0, minPrice: 0, maxPrice: 0, variationCount: 0 };
-                const isLowStock = stat.totalStock < 10;
-
-                return (
-                  <tr 
-                    key={product.id} 
-                    onClick={() => onSelectProduct(product)}
-                    className="group hover:bg-blue-50/50 cursor-pointer transition-colors"
-                  >
-                    <td className="px-6 py-3">
-                      <div className="w-16 h-16 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden relative flex items-center justify-center">
-                        {product.image ? (
-                           <img 
-                             src={product.image} 
-                             alt={product.name} 
-                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                           />
-                        ) : (
-                           <ImageIcon className="text-slate-300" size={24} />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3">
-                      <div className="font-bold text-slate-800 text-base">{product.name}</div>
-                      <div className="text-xs text-slate-400 mt-1 sm:hidden">{product.category}</div>
-                    </td>
-                    <td className="px-6 py-3 hidden sm:table-cell">
-                      <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-medium border border-slate-200">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3 text-center">
-                       <span className="text-slate-600 font-medium bg-slate-50 px-2 py-1 rounded border border-slate-200 text-sm">
-                         {stat.variationCount} types
-                       </span>
-                    </td>
-                    <td className="px-6 py-3 text-right">
-                      <div className="font-semibold text-slate-700">
-                        ₹{stat.minPrice.toLocaleString()} - ₹{stat.maxPrice.toLocaleString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3 text-right">
-                      <div className={`inline-flex flex-col items-end`}>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          isLowStock ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
-                        }`}>
-                          {stat.totalStock} units
-                        </span>
-                        {isLowStock && <span className="text-[10px] text-red-500 mt-1 font-medium">Low Stock</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3 text-right text-slate-300">
-                      <ChevronRight size={20} className="group-hover:text-blue-500 transition-colors" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        
+      {/* Mobile grid-cols-2 to show 2 cards per row */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+        {filteredProducts.map(p => (
+          <ProductCard key={p.id} product={p} stats={productStats.get(p.id)} onSelect={() => onSelectProduct(p)} />
+        ))}
         {filteredProducts.length === 0 && (
-          <div className="text-center py-20 bg-slate-50/50">
-            <Package className="mx-auto text-slate-300 mb-4" size={64} />
-            <h3 className="text-xl font-semibold text-slate-600">No products found</h3>
-            <p className="text-slate-400 mt-2">Try adjusting your search or add a new product.</p>
+          <div className="col-span-full py-16 sm:py-20 text-center bg-white border-2 border-dashed border-slate-200 rounded-2xl sm:rounded-3xl">
+            <Boxes className="mx-auto text-slate-200 mb-4" size={48} sm:size={60} />
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800">No items found</h3>
+            <p className="text-xs sm:text-slate-400 mt-1">Try adjusting your filters or search keywords.</p>
           </div>
         )}
       </div>
 
-      {/* Add Product Modal */}
-      <ProductFormModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
-        onSave={onAddProduct}
-        existingCategories={categories}
-      />
-
-      {/* Category Manager Modal */}
-      <CategoryManager
-        isOpen={isCatManagerOpen}
-        onClose={() => setIsCatManagerOpen(false)}
-        categories={categories}
-        onUpdateCategories={onUpdateCategories}
-      />
+      <ProductFormModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSave={onAddProduct} existingCategories={categories} />
+      <CategoryManager isOpen={isCatManagerOpen} onClose={() => setIsCatManagerOpen(false)} categories={categories} onUpdateCategories={onUpdateCategories} />
     </div>
   );
 };
