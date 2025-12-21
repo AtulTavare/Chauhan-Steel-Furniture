@@ -27,7 +27,7 @@ const ProductCard: React.FC<{ product: Product, stats: any, onSelect: () => void
         {product.image ? (
           <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="text-slate-300" size={32} /></div>
+          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="text-slate-300 w-8 h-8" /></div>
         )}
         <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3">
           <span className="bg-white/90 backdrop-blur px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm border border-white/50">{product.category}</span>
@@ -58,7 +58,7 @@ const ProductCard: React.FC<{ product: Product, stats: any, onSelect: () => void
             <span className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider">Starting ₹</span>
             <span className="text-[10px] sm:text-sm font-black text-slate-900">₹{stats.minPrice}</span>
           </div>
-          <div className="bg-slate-50 p-1 sm:p-2 rounded-lg sm:rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all"><ChevronRight size={14} className="sm:w-[18px] sm:h-[18px]" /></div>
+          <div className="bg-slate-50 p-1 sm:p-2 rounded-lg sm:rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all"><ChevronRight className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px]" /></div>
         </div>
       </div>
     </div>
@@ -101,10 +101,10 @@ export const Inventory: React.FC<InventoryProps> = ({ products, variations, cate
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <button onClick={() => setIsCatManagerOpen(true)} className="flex-1 sm:flex-none bg-white border border-slate-200 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm text-slate-700 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
-            <Tag size={16} className="text-slate-400" /> Categories
+            <Tag className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-slate-400" /> Categories
           </button>
           <button onClick={() => setIsAddModalOpen(true)} className="flex-1 sm:flex-none bg-blue-600 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm text-white flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-            <Plus size={18} /> Add Product
+            <Plus className="w-[18px] h-[18px] sm:w-5 sm:h-5" /> Add Product
           </button>
         </div>
       </div>
@@ -142,7 +142,7 @@ export const Inventory: React.FC<InventoryProps> = ({ products, variations, cate
         ))}
         {filteredProducts.length === 0 && (
           <div className="col-span-full py-16 sm:py-20 text-center bg-white border-2 border-dashed border-slate-200 rounded-2xl sm:rounded-3xl">
-            <Boxes className="mx-auto text-slate-200 mb-4" size={48} sm:size={60} />
+            <Boxes className="mx-auto text-slate-200 mb-4 w-12 h-12 sm:w-[60px] sm:h-[60px]" />
             <h3 className="text-lg sm:text-xl font-bold text-slate-800">No items found</h3>
             <p className="text-xs sm:text-slate-400 mt-1">Try adjusting your filters or search keywords.</p>
           </div>

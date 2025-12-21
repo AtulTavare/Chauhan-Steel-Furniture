@@ -22,7 +22,7 @@ const VariationCard: React.FC<{ variation: Variation, onUpdateStock: () => void,
         {variation.image ? (
           <img src={variation.image} alt={variation.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="text-slate-300" size={32} /></div>
+          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="text-slate-300 w-8 h-8" /></div>
         )}
         <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3">
           <span className="bg-white/90 backdrop-blur px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm border border-white/50">{variation.name}</span>
@@ -44,7 +44,7 @@ const VariationCard: React.FC<{ variation: Variation, onUpdateStock: () => void,
       <div className="p-2.5 sm:p-4 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-1 sm:mb-2">
           <h3 className="text-sm sm:text-lg font-bold text-slate-900 line-clamp-1">{variation.name}</h3>
-          <button onClick={onEdit} className="p-1 sm:p-2 text-slate-400 hover:text-blue-600 transition-colors"><Edit2 size={14} className="sm:w-4 sm:h-4" /></button>
+          <button onClick={onEdit} className="p-1 sm:p-2 text-slate-400 hover:text-blue-600 transition-colors"><Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
         </div>
         <div className="mt-auto pt-2 sm:pt-4 border-t border-slate-50 flex items-center justify-between">
           <div className="flex flex-col">
@@ -55,7 +55,7 @@ const VariationCard: React.FC<{ variation: Variation, onUpdateStock: () => void,
             onClick={onUpdateStock}
             className="bg-slate-900 text-white p-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl text-[8px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-1 sm:gap-2 hover:bg-blue-600 transition-all shadow-md active:scale-95 shrink-0"
           >
-            <PackagePlus size={12} className="sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Stock</span>
+            <PackagePlus className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Stock</span>
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <button onClick={onBack} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors group">
-        <div className="p-2 bg-white border rounded-lg sm:rounded-xl group-hover:border-blue-500 transition-all"><ArrowLeft size={16} sm:size={18} /></div> <span className="text-sm">Back</span>
+        <div className="p-2 bg-white border rounded-lg sm:rounded-xl group-hover:border-blue-500 transition-all"><ArrowLeft className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></div> <span className="text-sm">Back</span>
       </button>
 
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col md:flex-row">
@@ -128,13 +128,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
           {product.image ? (
             <img src={product.image} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-200"><ImageIcon size={48} sm:size={64} /></div>
+            <div className="w-full h-full flex items-center justify-center text-slate-200"><ImageIcon className="w-12 h-12 sm:w-16 sm:h-16" /></div>
           )}
           <button 
             onClick={() => productImgInputRef.current?.click()}
             className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white font-black uppercase tracking-widest text-[10px] sm:text-xs gap-2"
           >
-            <Camera size={20} sm:size={24} /> Change Product Image
+            <Camera className="w-5 h-5 sm:w-6 sm:h-6" /> Change Product Image
           </button>
           <input ref={productImgInputRef} type="file" accept="image/*" className="hidden" onChange={handleProductImageChange} />
           <div className="absolute top-4 left-4">
@@ -155,7 +155,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2 sm:gap-3">Variations <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-blue-500"></div></h3>
           <button onClick={() => openModal()} className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-lg shadow-blue-200 flex items-center gap-2 active:scale-95 transition-all">
-            <Plus size={16} sm:size={18} /> Add New
+            <Plus className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /> Add New
           </button>
         </div>
 
@@ -177,7 +177,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-xl animate-scale-in my-8">
             <div className="p-5 sm:p-6 border-b flex justify-between items-center">
               <h3 className="text-lg sm:text-2xl font-black">{editingVar ? 'Update Specs' : 'New Spec'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full"><X size={20} sm:size={24} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-5 h-5 sm:w-6 sm:h-6" /></button>
             </div>
             <form onSubmit={handleSave} className="p-5 sm:p-8 space-y-4 sm:space-y-6">
               <div>
@@ -196,7 +196,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
               </div>
               <div className="flex gap-3 sm:gap-4">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-50 border rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center relative shrink-0">
-                  {formData.image ? <img src={formData.image} className="w-full h-full object-cover" /> : <ImageIcon className="text-slate-300" size={20} sm:size={24} />}
+                  {formData.image ? <img src={formData.image} className="w-full h-full object-cover" /> : <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300" />}
                   <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
                 </div>
                 <div className="flex-1">
@@ -215,14 +215,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, variation
           <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-sm p-6 sm:p-8 animate-scale-in">
             <div className="flex justify-between items-start mb-4 sm:mb-6">
               <div><h3 className="text-xl sm:text-2xl font-black">Stock Control</h3><p className="text-blue-600 text-[8px] sm:text-[10px] font-black uppercase tracking-widest mt-1">{stockAdjVar.name}</p></div>
-              <button onClick={() => setIsStockModalOpen(false)} className="p-2"><X size={20} sm:size={24} /></button>
+              <button onClick={() => setIsStockModalOpen(false)} className="p-2"><X className="w-5 h-5 sm:w-6 sm:h-6" /></button>
             </div>
             <div className="flex bg-slate-100 p-1 rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
               <button onClick={() => setStockAdjMode('ADD')} className={`flex-1 py-2.5 sm:py-3 text-[8px] sm:text-[10px] font-black uppercase rounded-lg sm:rounded-xl transition-all ${stockAdjMode === 'ADD' ? 'bg-white shadow-sm' : 'text-slate-400'}`}>Add/Sub</button>
               <button onClick={() => setStockAdjMode('SET')} className={`flex-1 py-2.5 sm:py-3 text-[8px] sm:text-[10px] font-black uppercase rounded-lg sm:rounded-xl transition-all ${stockAdjMode === 'SET' ? 'bg-white shadow-sm' : 'text-slate-400'}`}>Manual Set</button>
             </div>
             <input autoFocus type="number" value={stockAdjValue} onChange={e => setStockAdjValue(e.target.value === '' ? '' : Number(e.target.value))} className="w-full py-6 sm:py-8 text-4xl sm:text-5xl font-black text-center bg-slate-50 border-2 rounded-2xl sm:rounded-3xl outline-none focus:border-blue-500 transition-all mb-6 sm:mb-8" placeholder="0" />
-            <button onClick={handleStockSave} className="w-full py-4 sm:py-5 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-black flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base shadow-xl active:scale-95 transition-all"><CheckCircle2 size={20} sm:size={24} /> Confirm Change</button>
+            <button onClick={handleStockSave} className="w-full py-4 sm:py-5 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-black flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base shadow-xl active:scale-95 transition-all"><CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" /> Confirm Change</button>
           </div>
         </div>
       )}
